@@ -1,0 +1,359 @@
+import java.sql.*;
+import java.util.Scanner;
+
+public class mysqlJava {
+	private static Connection connect(String url, String user, String password) {
+		Connection result = null;
+		try {
+			result = DriverManager.getConnection(url, user, password);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	private static void menu() {
+		System.out.println("Choose between the following options:\n"
+				+ "1.registration\n" + "2.enter city\n"
+				+ "3.enter vehicle information\n"
+				+ "4.enter trip information\n" + "5.view start city\n"
+				+ "6.view profile\n" + "7.view post\n" + "8.join a trip\n" + "9.view all posts\n"
+			    + "10.exit");
+
+	}
+
+	private static int registration(String userName, String password,
+			String eMail, String phoneNumber, String description, int rating,
+			Connection link) throws SQLException {
+		String query = "INSERT INTO users(user_name,password,e_mail,phone_number,"
+				+ "user_rating,"
+				+ "user_description)"
+				+ "VALUES('"
+				+ userName
+				+ "','"
+				+ password
+				+ "','"
+				+ eMail
+				+ "','"
+				+ phoneNumber
+				+ "','" + rating + "','" + description + "');";
+
+		Statement statement = null;
+		int result;
+		statement = link.createStatement();
+		result = statement.executeUpdate(query);
+		return result;
+	}
+
+	private static int enterCity(String city, Connection link)
+			throws SQLException {
+		String query = "INSERT INTO city(name)VALUES('" + city + "');";
+		Statement statement = null;
+		int result;
+		statement = link.createStatement();
+		result = statement.executeUpdate(query);
+		return result;
+	}
+
+	private static int enterVehicleInformation(String userName,
+			String vehicleModel, int seats, String storageSize, Connection link)
+			throws SQLException {
+		String query = "INSERT INTO vehicle(user_id,vehicle_model,seats,storage_size)"
+				+ "VALUES((SELECT id FROM users WHERE user_name = '"
+				+ userName
+				+ "'),'"
+				+ vehicleModel
+				+ "',"
+				+ seats
+				+ ",'"
+				+ storageSize
+				+ "');";
+		Statement statement = null;
+		int result;
+		statement = link.createStatement();
+		result = statement.executeUpdate(query);
+		return result;
+	}
+
+	private static int enterTripInformation(String userName, String fromCity,
+			String toCity, float cost, String date, Connection link)
+			throws SQLException {
+		String query = "INSERT INTO trip(vehicle_id,to_id,from_id,cost,date)"
+				+ "VALUES(" + "(SELECT vehicle_id " + "FROM vehicle "
+				+ "WHERE user_id = (SELECT id " + "FROM users "
+				+ "WHERE user_name ='" + userName + "')" + "),"
+				+ "(SELECT city_id " + "FROM city " + "WHERE name = '" + toCity
+				+ "' ), " + " (SELECT city_id " + "FROM city "
+				+ "WHERE name = '" + fromCity + "')," + cost + ",'" + date
+				+ "');";
+		Statement statement = null;
+		int result;
+		statement = link.createStatement();
+		result = statement.executeUpdate(query);
+		return result;
+	}
+
+	private static ResultSet viewUserProfile(String userName, Connection link)
+			throws SQLException {
+		String query = "SELECT user_name,e_mail,phone_number,user_rating,user_description"
+				+ "FROM users" + "WHERE user_name ='" + userName + "';";
+		Statement statement = null;
+		ResultSet result;
+		statement = link.createStatement();
+		result = statement.executeQuery(query);
+		return result;
+	}
+
+	private static ResultSet viewStartCity(String author, Connection link)
+			throws SQLException {
+		String query = "SELECT name" + "FROM city"
+				+ "WHERE city_id = (SELECT from_id" + "FROM trip"
+				+ "WHERE vehicle_id=(SELECT vehicle_id" + "FROM vehicle"
+				+ "WHERE user_id = (SELECT id" + "FROM users"
+				+ "WHERE user_name='" + author + "')));";
+		Statement statement = null;
+		ResultSet result;
+		statement = link.createStatement();
+		result = statement.executeQuery(query);
+		return result;
+
+	}
+
+	private static ResultSet viewPostInformation(String author, Connection link)
+			throws SQLException {
+		String query = "SELECT name,cost,date,storage_size,seats,vehicle_model"
+				+ "FROM city JOIN trip"
+				+ "ON city.city_id = trip.to_id JOIN vehicle"
+				+ "ON trip.vehicle_id = vehicle.vehicle_id"
+				+ "WHERE vehicle.vehicle_id=(SELECT id " + "FROM users"
+				+ "WHERE user_name = '" + author + "');";
+		Statement statement = null;
+		ResultSet result;
+		statement = link.createStatement();
+		result = statement.executeQuery(query);
+		return result;
+
+	}
+
+	private static ResultSet viewAllPosts(Connection link) throws SQLException {
+		String query = "SELECT name,cost,date" + "FROM trip JOIN city"
+				+ "ON trip.from_id = city.city_id AND DATE((SELECT date"
+				+ "FROM trip )) = CURRENT DATE;";
+		Statement statement = null;
+		ResultSet result;
+		statement = link.createStatement();
+		result = statement.executeQuery(query);
+		return result;
+	}
+
+	private static ResultSet userNameAndPassword(Connection link)
+			throws SQLException {
+		String query = "SELECT user_name,password FROM users;";
+		Statement statement = null;
+		ResultSet result;
+		statement = link.createStatement();
+		result = statement.executeQuery(query);
+		return result;
+	}
+
+	public static void main(String[] args) throws SQLException {
+		String url = "jdbc:mysql://localhost:3306/travel_management";
+		String user = "user";
+		String pass = "pass";
+		String userName, password, eMail, phoneNumber, description = null, cityName, vehicleModel, storageSize, fromCity, toCity, date;
+		Connection link = mysqlJava.connect(url, user, pass);
+		int choice = 0;
+		int rating, x, seats;
+		float cost;
+		Scanner input = new Scanner(System.in);
+		menu();
+		choice = input.nextInt();
+
+		while (true) {
+			switch (choice) {
+			case 0: {
+				System.out.println("You have not selected an option."
+						+ "Please select a valid option");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+			case 1: {
+				System.out.println("Connecting java with mysql database test");
+				System.out.println("Enter user name");
+				userName = input.next();
+				System.out.println("Enter password");
+				password = input.next();
+				System.out.println("enter e-mail");
+				eMail = input.next();
+				System.out.println("Enter phone number");
+				phoneNumber = input.next();
+				System.out.println("enter rating");
+				rating = input.nextInt();
+				System.out.println("Enter description");
+				description = input.nextLine();
+				description = input.nextLine();
+				x = registration(userName, password, eMail, phoneNumber,
+						description, rating, link);
+				if (x == 1) {
+					System.out.println("pass");
+				} else
+					System.out.println("fail");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+			case 2: {
+				System.out.println("Enter city name");
+				cityName = input.next();
+				x = enterCity(cityName, link);
+				if (x == 1) {
+					System.out.println("pass");
+				} else
+					System.out.println("fail");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+
+			case 3: {
+				System.out.println("Enter user name");
+				userName = input.next();
+				System.out.println("Enter vehicle model");
+				vehicleModel = input.next();
+				System.out.println("Enter number of seats");
+				seats = input.nextInt();
+				System.out.println("Enter storage size");
+				storageSize = input.next();
+				x = enterVehicleInformation(userName, vehicleModel, seats,
+						storageSize, link);
+				if (x == 1) {
+					System.out.println("pass");
+				} else
+					System.out.println("fail");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+			case 4: {
+				System.out.println("Enter user name");
+				userName = input.next();
+				System.out.println("Enter starting city");
+				fromCity = input.next();
+				System.out.println("Enter ending city");
+				toCity = input.next();
+				System.out.println("Enter cost(total)");
+				cost = input.nextFloat();
+				System.out.print("Enter date");
+				date = input.nextLine();
+				date = input.nextLine();
+				x = enterTripInformation(userName, fromCity, toCity, cost,
+						date, link);
+				if (x == 1) {
+					System.out.println("\npass");
+				} else
+					System.out.println("\nfail");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+			case 5:{
+				System.out.println("enter user name");
+				userName = input.next();
+				ResultSet result=viewStartCity(userName, link);
+				boolean check=result.next();
+				if (check == false) {
+					System.out.println("fail");
+
+				} else
+					System.out.println("pass");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+			
+			
+			case 6: {
+				System.out.println("enter user name");
+				userName = input.next();
+				ResultSet result=viewUserProfile(userName, link);
+				boolean check=result.next();
+				if (check == false) {
+					System.out.println("No such user/fail");
+
+				} else
+					System.out.println("pass");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+	
+			
+			case 7:{
+				
+				System.out.println("enter user name");
+				userName = input.next();
+				ResultSet result1=viewStartCity(userName,link);
+				ResultSet result2=viewPostInformation(userName, link);
+				
+				boolean check1=result1.next();
+				boolean check2=result2.next();
+				if (check1 == false || check2==false) {
+					System.out.println("fail");
+
+				} else
+					System.out.println("pass");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+			
+			
+			
+			case 8:{
+	            System.out.println("Enter user name");
+				userName = input.next();
+				System.out.println("from city");
+				fromCity = input.next();
+				System.out.println("to city");
+				toCity = input.next();
+				System.out.println("on date:");
+				date = input.next();
+				boolean check=updateSeatsPassengers(userName,toCity,fromCity,date,link);
+				if(check==false){
+					System.out.println("fail");
+				}
+				else
+					System.out.println("pass");
+				menu();
+				choice = input.nextInt();
+				break;
+			}
+			
+		case 9:{
+			ResultSet result=viewAllPosts(link);
+			boolean check=result.next();
+			if (check == false) {
+				System.out.println("no trips/fail");
+
+			} else
+				System.out.println("pass");
+			menu();
+			choice = input.nextInt();
+			break;
+			
+			}
+			
+			case 10: {
+				System.exit(0);
+			}
+			
+			default: {
+				System.out.println("You have selected an invalid option"
+						+ "Please select again.");
+				choice = input.nextInt();
+			}
+			}
+		}
+	}
+}
