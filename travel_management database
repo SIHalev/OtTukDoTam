@@ -1,0 +1,59 @@
+CREATE DATABASE travel_management;
+USE travel_management;
+
+CREATE TABLE users(
+id MEDIUMINT AUTO_INCREMENT,
+user_name VARCHAR(75) UNIQUE NOT NULL,
+password VARCHAR(75) UNIQUE NOT NULL,
+e_mail VARCHAR(100) UNIQUE NOT NULL,
+phone_number VARCHAR(12) NOT NULL,
+user_rating TINYINT(5),
+user_avatar LONGBLOB NULL DEFAULT NULL,
+user_description TEXT NULL DEFAULT NULL,
+PRIMARY KEY (id)
+)Engine = InnoDB;
+
+CREATE TABLE vehicle(
+vehicle_id MEDIUMINT AUTO_INCREMENT,
+user_id MEDIUMINT NOT NULL,
+vehicle_model VARCHAR(100),
+seats TINYINT NOT NULL,
+storage_size VARCHAR(10),
+vehicle_avatar MEDIUMBLOB,
+PRIMARY KEY (vehicle_id),
+FOREIGN KEY (user_id)
+REFERENCES users(id)
+)Engine = InnoDB;
+
+CREATE TABLE city(
+name VARCHAR(75) UNIQUE NOT NULL,
+city_id INT AUTO_INCREMENT,
+PRIMARY KEY(city_id)
+)Engine = InnoDB;
+
+CREATE TABLE trip(
+trip_id MEDIUMINT AUTO_INCREMENT,
+vehicle_id MEDIUMINT NOT NULL,
+to_id INT NOT NULL,
+from_id INT NOT NULL,
+cost FLOAT(5,2),
+date DATETIME,
+PRIMARY KEY (trip_id),
+FOREIGN KEY (vehicle_id)
+REFERENCES vehicle(vehicle_id),
+FOREIGN KEY (from_id)
+REFERENCES city(city_id),
+FOREIGN KEY (to_id)
+REFERENCES city(city_id)
+)Engine = InnoDB;
+
+CREATE TABLE passengers(
+us_id MEDIUMINT NOT NULL REFERENCES users(user_id),
+tr_id MEDIUMINT NOT NULL REFERENCES trip(trip_id),
+PRIMARY KEY(us_id,tr_id)
+)Engine = InnoDB;
+
+GRANT ALL 
+ON travel_management.*
+TO 'user'@'localhost'
+IDENTIFIED BY 'pass';
