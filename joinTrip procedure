@@ -1,0 +1,22 @@
+
+DELIMITER |
+Create procedure joinTrip(IN userName varchar(75),IN toCity VARCHAR(75),
+IN fromCity VARCHAR(75),IN date DATETIME)
+
+begin
+
+start transaction;
+
+insert into passengers(us_id,tr_id) values ((select id from users where user_name=userName),
+(select trip_id from trip where to_id=(select city_id from city where name=toCity) and
+from_id=(select city_id from city where name=fromCity) and date=date));
+
+update vehicle 
+set seats=seats-1
+where vehicle_id=(
+select trip.vehicle_id 
+from trip
+where trip_id =(select trip_id from trip where to_id=(select city_id from city where name=toCity) and 
+from_id=(select city_id from city where name=fromCity) and date=date));
+
+commit;
