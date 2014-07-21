@@ -3,6 +3,7 @@ package controllers;
 import java.util.HashMap;
 import java.util.Map;
 
+import models.User;
 import play.*;
 import play.data.DynamicForm;
 import play.data.DynamicForm.Dynamic;
@@ -29,10 +30,14 @@ public class Application extends Controller {
     	//User user = userForm.bindFromRequest().get();
     	////userForm = userForm.fill(new User("bob@gmail.com", "secret"));
     	  	
-    	DynamicForm dynamicForm = Form.form().bindFromRequest();       	
-    	Dynamic user = dynamicForm.bindFromRequest().get();
+    	//User user = Form.form(User.class).bindFromRequest().get(); // returning nulls
     	
-    	Json.toJson(user);
+    	// Working
+    	DynamicForm dynamicForm = Form.form().bindFromRequest();       	
+    	Dynamic user = dynamicForm.bindFromRequest().get();   	
+    	return ok(Json.toJson(user));
+    	
+    	
     	
     	//Map<String,String> anyData = new HashMap();
     	//anyData.put("email", "bob@gmail.com");
@@ -40,7 +45,7 @@ public class Application extends Controller {
     	//User user = userForm.bind(anyData).get();
     	    	
     	//return ok(user.getData().get("email").toString()); // Getting smt from form.
-    	return ok(Json.toJson(user.getData())); // Testing to json method.
+    	//return ok(Json.toJson(user.getData())); // Testing to json method.
     	
     	//return ok("Username is: " + dynamicForm.get("email"));
         /*
