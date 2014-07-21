@@ -24,13 +24,13 @@ public class Application extends Controller {
     
     public static Result login() {
     	
-    	String user = session("connected");
+    	//String user = session("connected");
     	String req = request().toString();
-        if(user != null) {     
-        	return ok(login.render(session("email") + "|" + session("password") + "---" + req));
-        } else {
+       // if(user != null) {     
+       // 	return ok(login.render(session("email") + "|" + session("password") + "---" + req));
+       // } else {
         	return ok(login.render("no input data " + req));
-        }
+        //}
   	
     }
     
@@ -47,10 +47,17 @@ public class Application extends Controller {
     	
     	Map dataMap = user.getData();
     	
-    	session("connected", "true");
+    	
+    	//validation pattern
+    	//Pattern p = Pattern.compile("[0-9]");
+    	//Matcher m = p.matcher(str); //str is the String that needs validating
+    	//
+    	
+    	
+    	//session("connected", "true");
     	//TODO: make it a loop + remove password.
-    	session("email", dataMap.get("email").toString());
-    	session("password", dataMap.get("password").toString()); // For test...
+    	//session("email", dataMap.get("email").toString());
+    	//session("password", dataMap.get("password").toString()); // For test...
     		
     	
     	// session().clear(); // For log out button
