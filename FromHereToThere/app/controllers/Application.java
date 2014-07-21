@@ -3,6 +3,8 @@ package controllers;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import models.User;
 import play.*;
 import play.data.DynamicForm;
@@ -21,8 +23,15 @@ public class Application extends Controller {
     }
     
     public static Result login() {
+    	
+    	String user = session("connected");
     	String req = request().toString();
-    	return ok(login.render("no input data " + req));
+        if(user != null) {     
+        	return ok(login.render(session("email") + "|" + session("password") + "---" + req));
+        } else {
+        	return ok(login.render("no input data " + req));
+        }
+  	
     }
     
     public static Result afterPost() {
@@ -34,11 +43,21 @@ public class Application extends Controller {
     	
     	// Working
     	DynamicForm dynamicForm = Form.form().bindFromRequest();       	
-    	Dynamic user = dynamicForm.bindFromRequest().get();   	
+    	Dynamic user = dynamicForm.bindFromRequest().get();  
+    	
+    	Map dataMap = user.getData();
+    	
+    	session("connected", "true");
+    	//TODO: make it a loop + remove password.
+    	session("email", dataMap.get("email").toString());
+    	session("password", dataMap.get("password").toString()); // For test...
+    		
+    	
+    	// session().clear(); // For log out button
+    	
     	return ok(Json.toJson(user));
     	
-    	
-    	
+    	  	
     	//Map<String,String> anyData = new HashMap();
     	//anyData.put("email", "bob@gmail.com");
     	//anyData.put("password", "secret");
