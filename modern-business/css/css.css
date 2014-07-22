@@ -1,0 +1,18 @@
+.panel {
+width: 500px;
+
+}
+
+.panel-body {
+height:200px;
+overflow:auto;
+}
+
+.pesho {
+margin: 0px 220px;
+}
+
+.choki{
+width:600px;
+margin:0px;
+}
