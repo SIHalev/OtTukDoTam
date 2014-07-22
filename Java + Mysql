@@ -1,6 +1,12 @@
 import java.sql.*;
 import java.util.Scanner;
 
+/*
+db.default.driver=com.mysql.jdbc.Driver
+db.default.url= "jdbc:mysql://localhost:3306/travel_management"
+db.default.user="user"
+db.default.password="pass"
+*/
 public class mysqlJava {
 	private static Connection connect(String url, String user, String password) {
 		Connection result = null;
