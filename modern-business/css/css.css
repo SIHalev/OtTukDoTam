@@ -1,18 +1,26 @@
 .panel {
 width: 500px;
-
+position:absolute;
 }
 
 .panel-body {
 height:200px;
 overflow:auto;
-}
 
+}
 .pesho {
 margin: 0px 220px;
 }
 
 .choki{
-width:600px;
-margin:0px;
+margin: 0px 100px;
+width: 900px
+}
+
+.foot {
+margin: 200px 0px;
+}
+
+.page-header {
+font-family:"Calibri";
 }
